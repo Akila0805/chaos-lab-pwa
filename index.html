@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>CHAOSLAB</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body{
+  margin:0;
+  font-family:'Poppins',sans-serif;
+  background:linear-gradient(135deg,#0a1a3a,#0d2b6b,#0f3c91);
+  color:white;
+}
+section{display:none;padding:20px;min-height:100vh;}
+.active{display:block;}
+h1,h2{letter-spacing:2px;}
+button{
+  background:#ffd700;
+  border:none;
+  padding:10px 20px;
+  border-radius:30px;
+  cursor:pointer;
+  font-weight:bold;
+}
+button:hover{background:#ffea00;}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:15px;
+}
+.card{
+  background:rgba(255,255,255,0.12);
+  border-radius:20px;
+  padding:10px;
+  backdrop-filter:blur(10px);
+  transition:.3s;
+}
+.card:hover{transform:scale(1.05);}
+.card img{
+  width:100%;
+  height:150px;
+  object-fit:contain;
+  border-radius:15px;
+  background:white;
+}
+.price{color:#ffd700;font-weight:bold;}
+input{
+  padding:10px;
+  border-radius:20px;
+  border:none;
+  width:250px;
+}
+.nav{
+  position:fixed;
+  bottom:0;
+  width:100%;
+  background:#08162f;
+  display:flex;
+  justify-content:space-around;
+  padding:10px;
+  z-index:10;
+}
+</style>
+</head>
+<body>
+
+<!-- SPLASH -->
+<section id="splash" class="active">
+  <h1 style="font-size:60px;text-align:center;margin-top:30vh;">CHAOSLAB</h1>
+</section>
+
+<!-- OFFERS -->
+<section id="offers">
+  <h2>🔥 Mega Royal Offers</h2>
+  <div class="grid">
+    <div class="card">💥 Electronics Fest – Up to 40% OFF</div>
+    <div class="card">👗 Fashion Sale – Buy 2 Get 1</div>
+    <div class="card">🏠 Home Essentials – Flat ₹500 OFF</div>
+    <div class="card">💄 Beauty Bonanza – Up to 35% OFF</div>
+  </div>
+</section>
+
+<!-- PRODUCTS -->
+<section id="products">
+  <h2>Products</h2>
+  <input placeholder="Search products..." onkeyup="search(this.value)">
+  <br><br>
+  <div class="grid" id="productGrid"></div>
+</section>
+
+<!-- CART -->
+<section id="cart">
+  <h2>Your Cart</h2>
+  <div id="cartItems"></div>
+  <h3>Total: ₹<span id="total">0</span></h3>
+  <button onclick="go('checkout')">Checkout</button>
+</section>
+
+<!-- CHECKOUT -->
+<section id="checkout">
+  <h2>Delivery Details</h2>
+  <input placeholder="Address"><br><br>
+  <input placeholder="Phone"><br><br>
+  <input placeholder="Email"><br><br>
+  <button onclick="go('done')">Place Order</button>
+</section>
+
+<!-- DONE -->
+<section id="done">
+  <h1>🎉 Order Placed Successfully</h1>
+  <h2>Thank You for Shopping with CHAOSLAB 💙</h2>
+</section>
+
+<div class="nav">
+  <button onclick="go('offers')">Offers</button>
+  <button onclick="go('products')">Products</button>
+  <button onclick="go('cart')">Cart</button>
+</div>
+
+<script>
+const products = [
+  // Smartphones
+  { name: "Apple iPhone", price: 79999, img: "https://i.pinimg.com/736x/ed/1e/ef/ed1eefa130ef35b3c496e980ec5ea3fa.jpg" },
+  { name: "Samsung Phone", price: 69999, img: "https://i.pinimg.com/736x/7c/ed/ab/7cedab973910a16572f5d4ac1c8f107b.jpg" },
+  { name: "Google Pixel", price: 74999, img: "https://i.pinimg.com/736x/98/97/a0/9897a02f8cb25acda0a094b4a64af66c.jpg" },
+  { name: "Xiaomi Phone", price: 24999, img: "https://i.pinimg.com/736x/55/99/a2/5599a2b150f359f4efd0c9d0d5fa157d.jpg" },
+  { name: "Redmi Phone", price: 19999, img: "https://i.pinimg.com/736x/8f/fe/62/8ffe623e67b88d468780692a35bdccc7.jpg" },
+  { name: "Vivo Phone", price: 22999, img: "https://i.pinimg.com/736x/af/d5/9f/afd59f934bff361e9f510d2ae92eee3a.jpg" },
+  { name: "Oppo Phone", price: 21999, img: "https://i.pinimg.com/736x/08/54/80/08548054754f1d4c5da17602cf84b4d5.jpg" },
+
+  // Laptops
+  { name: "Lenovo Laptop", price: 54999, img: "https://i.pinimg.com/1200x/bd/a4/a9/bda4a92cded7da2fa986bc72050a860b.jpg" },
+  { name: "HP Laptop", price: 49999, img: "https://i.pinimg.com/1200x/05/71/a1/0571a140c8f2c73d60ad88ffd4a2bbb4.jpg" },
+  { name: "Dell Laptop", price: 59999, img: "https://i.pinimg.com/1200x/b9/b4/ce/b9b4ce3a2c7cd6e32438b5aae7d0d892.jpg" },
+  { name: "Apple Laptop", price: 99999, img: "https://i.pinimg.com/736x/75/af/77/75af775c2565c429cd29cde46e253171.jpg" },
+  { name: "Samsung Laptop", price: 87999, img: "https://i.pinimg.com/736x/ac/c4/e7/acc4e786fc6ae5a2bcbaa52194ff1df9.jpg" },
+  { name: "Microsoft Laptop", price: 105999, img: "https://i.pinimg.com/1200x/e3/08/27/e308276018dc93f5ecc3d13f2d9672f8.jpg" },
+  { name: "Asus Laptop", price: 64999, img: "https://i.pinimg.com/736x/54/b8/57/54b8575eaade46c94ae15c0430708dab.jpg" },
+  { name: "Acer Laptop", price: 45999, img: "https://i.pinimg.com/1200x/40/e6/17/40e617a1d17081773a414373d2d45afb.jpg" },
+
+  // Tablets
+  { name: "Apple Tablet", price: 64999, img: "https://i.pinimg.com/736x/b5/63/da/b563da1d6919ae93810600606e472a56.jpg" },
+  { name: "Samsung Tablet", price: 54999, img: "https://i.pinimg.com/736x/bf/ce/f2/bfcef2bf4f8961c0287a1a7581a5bb90.jpg" },
+  { name: "Lenovo Tablet", price: 44999, img: "https://i.pinimg.com/1200x/8f/c6/14/8fc614681e940ab84b8761a45c500751.jpg" },
+  { name: "Xiaomi Tablet", price: 25999, img: "https://i.pinimg.com/474x/92/bf/02/92bf0269a64052b860e5e483f6d803c8.jpg" },
+  { name: "One Plus Tablet", price: 32999, img: "https://i.pinimg.com/736x/60/9b/46/609b464a49362237274abcb79f31a5d3.jpg" },
+
+  // Wireless Earbuds
+  { name: "Apple Earbuds", price: 15999, img: "https://i.pinimg.com/1200x/a0/ca/64/a0ca644fdd253601559b0c526b790ad6.jpg" },
+  { name: "Sony Earbuds", price: 12999, img: "https://i.pinimg.com/1200x/d5/75/d9/d575d9fa0d5030d027b89f74c3ed7114.jpg" },
+  { name: "Bose Earbuds", price: 19999, img: "https://i.pinimg.com/1200x/c3/26/1f/c3261faaa70869b18dd5ef47e6235538.jpg" },
+  { name: "JBL Earbuds", price: 8999, img: "https://i.pinimg.com/1200x/5f/cd/09/5fcd0935be5197d4b7ad8eb34f103db6.jpg" },
+  { name: "Sennheiser Earbuds", price: 14999, img: "https://i.pinimg.com/1200x/83/9c/39/839c39626c688ccd4995e43d3f2a8ae5.jpg" },
+  { name: "OnePlus Earbuds", price: 9999, img: "https://i.pinimg.com/1200x/20/f4/de/20f4de55f9e02e5421e90c0b8d7ebbdc.jpg" },
+  { name: "Boat Earbuds", price: 5999, img: "https://i.pinimg.com/736x/c0/79/05/c07905dac5be22e599fa345a61803d2e.jpg" },
+
+  // Smart Watches
+  { name: "Apple Watch", price: 35999, img: "https://i.pinimg.com/1200x/85/e0/49/85e049f1f01b61f73a2d79f84961b488.jpg" },
+  { name: "Samsung Watch", price: 29999, img: "https://i.pinimg.com/1200x/63/b1/38/63b138fd4ffc10435531a84214de2d3a.jpg" },
+  { name: "Google Watch", price: 24999, img: "https://i.pinimg.com/736x/bd/a0/b0/bda0b0f755884740f1cf439201b15854.jpg" },
+  { name: "Garmin Watch", price: 19999, img: "https://i.pinimg.com/1200x/03/a1/e5/03a1e5b6f89d814962ad6f78a93da97c.jpg" },
+  { name: "Firebolt Watch", price: 14999, img: "https://i.pinimg.com/736x/ef/43/5b/ef435bf24f1f16dba75942a0b4d2389a.jpg" },
+  { name: "Boat Watch", price: 9999, img: "https://i.pinimg.com/1200x/50/84/4b/50844b36a4b4a38fee6658ea11ed6606.jpg" },
+
+  // Dresses (Women)
+  { name: "A-line Dress", price: 2999, img: "https://i.pinimg.com/1200x/dc/3e/b4/dc3eb40f49b8823f27320ab75fecc969.jpg" },
+  { name: "Shift Dress", price: 2599, img: "https://i.pinimg.com/1200x/3e/71/c0/3e71c035aad6562079caf2de66efcde7.jpg" },
+  { name: "Sheath Dress", price: 3499, img: "https://i.pinimg.com/736x/75/0c/0f/750c0f868ed790296a9b36f5bdccb361.jpg" },
+  { name: "Bodycon Dress", price: 3999, img: "https://i.pinimg.com/736x/34/3e/03/343e036e77c2fff0ff7ef7fd63fe014e.jpg" },
+  { name: "Wrap Dress", price: 2799, img: "https://i.pinimg.com/736x/26/da/42/26da42ad3717f3c50b292fcdf472a587.jpg" },
+  { name: "Empire Waist Dress", price: 3699, img: "https://i.pinimg.com/736x/de/08/14/de0814e96b5a83127c918348659837d.jpg" },
+  { name: "Ballgown Dress", price: 4999, img: "https://i.pinimg.com/736x/71/e0/fd/71e0fdc5f7bf8dfb9cc5d44eec56e7ae.jpg" },
+  { name: "Kaftan Dress", price: 2599, img: "https://i.pinimg.com/736x/2a/f8/89/2af8899988b012a5550c57f594435352.jpg" },
+  { name: "Sundress", price: 1999, img: "https://i.pinimg.com/1200x/65/27/6a/65276a9d4ad473e50bd0c44d661eb2ef.jpg" },
+  { name: "Maxi Dress", price: 3299, img: "https://i.pinimg.com/1200x/33/59/55/335955004b1b7a50d341d50e35186129.jpg" },
+
+  
+  // Cosmetics - Lipsticks
+  { name: "L'Oreal Lipstick", price: 999, img: "https://i.pinimg.com/1200x/79/a1/58/79a158c6a5450ef838f6dae20dbb0b8a.jpg" },
+  { name: "Lakme Lipstick", price: 599, img: "https://i.pinimg.com/736x/05/8e/d5/058ed5538f9d77752bec3d4c59e45b49.jpg" },
+  { name: "Sugar Lipstick", price: 799, img: "https://i.pinimg.com/474x/65/0d/ff/650dffb266cdf6bb99b203feb830403e.jpg" },
+  { name: "mCaffine Lipstick", price: 699, img: "https://i.pinimg.com/736x/f8/62/e9/f862e9c921c4c911c6ceb6b557ef2cc3.jpg" },
+  { name: "Rare Beauty Lipstick", price: 1299, img: "https://i.pinimg.com/1200x/c5/2d/ce/c52dce2a39b636390e10739d0d9fa01c.jpg" },
+  { name: "Rhode Lipstick", price: 1199, img: "https://i.pinimg.com/736x/88/19/c1/8819c178c2eb480fb431d91720a881b1.jpg" },
+
+  // Cosmetics - Foundation
+  { name: "NARS Foundation", price: 2499, img: "https://i.pinimg.com/736x/57/6c/57/576c57de5cb400da3b4bf2e6da6915d8.jpg" },
+  { name: "Dior Foundation", price: 2999, img: "https://i.pinimg.com/1200x/74/f1/c4/74f1c4623a17372b59ebf89b35c2b293.jpg" },
+  { name: "Maybelline Foundation", price: 1499, img: "https://i.pinimg.com/1200x/a9/22/dc/a922dcdf204f784a6a348a6a3f1b0cee.jpg" },
+  { name: "ELF Foundation", price: 899, img: "https://i.pinimg.com/1200x/ef/79/2b/ef792b0a8ff1e0106ba6ab0d2e45309f.jpg" },
+  { name: "MAC Foundation", price: 2199, img: "https://i.pinimg.com/736x/1c/c8/55/1cc855e9f5540bdb917509753111a8d6.jpg" },
+
+  // Cosmetics - Concealer
+  { name: "NARS Concealer", price: 1299, img: "https://i.pinimg.com/736x/9f/f0/33/9ff033f2f37f582ee21b84afe0846879.jpg" },
+  { name: "Maybelline Concealer", price: 899, img: "https://i.pinimg.com/1200x/cc/10/1d/cc101d063f48dd2c74b826e37fa9aba1.jpg" },
+  { name: "Tarte Concealer", price: 1599, img: "https://i.pinimg.com/736x/bf/e8/e3/bfe8e3a504fdcca4739c6dab850bea31.jpg" },
+  { name: "Huda Beauty Concealer", price: 1999, img: "https://i.pinimg.com/736x/e2/f5/1e/e2f51ec7b102219958ca2e3391949db4.jpg" },
+
+  // Cosmetics - Eyeliner
+  { name: "Dior Eyeliner", price: 1299, img: "https://i.pinimg.com/1200x/40/27/bd/4027bd184b4347b1666cc25940d63657.jpg" },
+  { name: "Lakme Eyeliner", price: 599, img: "https://i.pinimg.com/736x/30/ce/ee/30ceeee8359565666358617d7f5a7fcb.jpg" },
+  { name: "Maybelline Eyeliner", price: 699, img: "https://i.pinimg.com/736x/d0/7a/52/d07a52c339bee8021bfb74c115aaf244.jpg" },
+
+  // Cosmetics - Compact Powder
+  { name: "MAC Compact Powder", price: 1499, img: "https://i.pinimg.com/736x/9c/79/05/9c79052d6b2a21158ac210ff2c56d83d.jpg" },
+  { name: "Faces Canada Compact", price: 799, img: "https://i.pinimg.com/736x/c9/4a/7a/c94a7a8cd9ac36d797dc10b02b45be0d.jpg" },
+  { name: "Lakme Compact Powder", price: 699, img: "https://i.pinimg.com/736x/2f/4b/52/2f4b52924285679596d5c637ae7fb8d0.jpg" },
+  { name: "Maybelline Compact Powder", price: 799, img: "https://i.pinimg.com/736x/0b/f5/d9/0bf5d9127cfc8940907589bc784ada69.jpg" },
+
+  // Furniture
+  { name: "Sofa", price: 29999, img: "https://i.pinimg.com/736x/22/b2/15/22b215706a79411b74e2d323a92bfc88.jpg" },
+  { name: "Cot", price: 9999, img: "https://i.pinimg.com/736x/b7/7c/8f/b77c8f18e1ab28eb6ed41a5dfe4fda01.jpg" },
+  { name: "Bed", price: 19999, img: "https://i.pinimg.com/1200x/28/86/cc/2886cc3b81a9e858a5190aeac10bfad0.jpg" },
+  { name: "Dining Table", price: 14999, img: "https://i.pinimg.com/736x/cf/bc/84/cfbc8443799fd947515d09f637c7e819.jpg" },
+  { name: "TV Stand", price: 7999, img: "https://i.pinimg.com/736x/21/32/25/213225211d6b5895439b8d81189c0072.jpg" },
+  { name: "Dressing Table", price: 12999, img: "https://i.pinimg.com/736x/4c/5d/b1/4c5db1b92697b0ff49ab3209446f7c9a.jpg" },
+  { name: "Gas Stove", price: 8999, img: "https://i.pinimg.com/1200x/16/42/5d/16425d50df9dad55302216f8093055a0.jpg" },
+
+  // Appliances - Washing Machines
+  { name: "LG Washing Machine", price: 24999, img: "https://i.pinimg.com/1200x/69/14/43/691443cfb7e91e1fd1f2e095c7fb38d9.jpg" },
+  { name: "Samsung Washing Machine", price: 19999, img: "https://i.pinimg.com/736x/ee/a7/a4/eea7a43686f485685af2ef1741ab1eaf.jpg" },
+  { name: "Bosch Washing Machine", price: 27999, img: "https://i.pinimg.com/1200x/5f/14/ae/5f14ae1c1665d9895673698fc526925a.jpg" },
+  { name: "Panasonic Washing Machine", price: 15999, img: "https://i.pinimg.com/736x/f7/6e/43/f76e43d4b2209846c1e7aac9c66329cc.jpg" },
+  { name: "Godrej Washing Machine", price: 18999, img: "https://i.pinimg.com/474x/8e/9e/b7/8e9eb74521e7e5e783f57ec8a9f7066c.jpg" },
+  { name: "IFB Washing Machine", price: 22999, img: "https://i.pinimg.com/1200x/3d/c5/bb/3dc5bb5e22d1b5cf66663dc57670f245.jpg" },
+
+  // Appliances - Fridges
+  { name: "LG Fridge", price: 34999, img: "https://i.pinimg.com/736x/16/f0/a7/16f0a79bc24128dcdbc12136702f3f11.jpg" },
+  { name: "Godrej Fridge", price: 29999, img: "https://i.pinimg.com/736x/1a/19/df/1a19dfa6c8a31ba56c337aa02b1a6a99.jpg" },
+  { name: "Bosch Fridge", price: 35999, img: "https://i.pinimg.com/1200x/b9/17/e3/b917e37134e0f9e66308b1a4712c11f5.jpg" },
+  { name: "Samsung Fridge", price: 32999, img: "https://i.pinimg.com/736x/47/d9/66/47d96668262065dfef29b5b7ee4a458d.jpg" },
+  { name: "Haier Fridge", price: 26999, img: "https://i.pinimg.com/736x/75/17/6c/75176c5ed5490191fbc5aad926bcd77e.jpg" },
+  { name: "Panasonic Fridge", price: 28999, img: "https://i.pinimg.com/736x/46/3b/b6/463bb6ad9f90ae906f027dcb280bf179.jpg" },
+
+  // Appliances - Oven
+  { name: "Bosch Oven", price: 18999, img: "https://i.pinimg.com/1200x/42/42/38/424238524c6766120fa9ec338d98b6f4.jpg" },
+  { name: "LG Oven", price: 16999, img: "https://i.pinimg.com/1200x/74/45/91/744591553fb26d415ccc111f33b4e88d.jpg" },
+  { name: "Samsung Oven", price: 15999, img: "https://i.pinimg.com/1200x/22/34/d7/2234d707e75cfe38e2e3424cdac0ec06.jpg" },
+  { name: "Haier Oven", price: 14999, img: "https://i.pinimg.com/1200x/79/a1/58/79a158c6a5450ef838f6dae20dbb0b8a.jpg" },
+
+  // Appliances - TVs
+  { name: "Samsung TV", price: 49999, img: "https://i.pinimg.com/736x/14/6e/a5/146ea5c4e8ba9c1be8f9079cdbbd88af.jpg" },
+  { name: "LG TV", price: 45999, img: "https://i.pinimg.com/1200x/c6/d6/d0/c6d6d07259aeffe54ecb27dfac5f90e8.jpg" },
+  { name: "Sony TV", price: 52999, img: "https://i.pinimg.com/736x/74/e5/24/74e52424f03fc9ddff44f1c2ce04dfb6.jpg" },
+  { name: "TCL TV", price: 39999, img: "https://i.pinimg.com/1200x/c4/88/f6/c488f699f8589abd878ee3798cc0af45.jpg" },
+  { name: "Panasonic TV", price: 42999, img: "https://i.pinimg.com/736x/08/57/c9/0857c9b17e56809c5b07ea3602b1bf64.jpg" },
+
+// Men's Clothing
+
+  { name: "Suit", price: 7999, img: "https://i.pinimg.com/1200x/89/88/1d/89881dba06f27a39ea16ce2fb3fa8995.jpg" },
+  { name: "Tuxedo", price: 9999, img: "https://i.pinimg.com/736x/e2/54/dc/e254dceecc61a5afc2e2dd998bf9a017.jpg" },
+  { name: "Blazer", price: 6999, img: "https://i.pinimg.com/736x/e2/54/dc/e254dceecc61a5afc2e2dd998bf9a017.jpg" },
+  { name: "Shirt", price: 1499, img: "https://i.pinimg.com/1200x/2a/35/35/2a35353cfa1a6107fd51ed1c0a285929.jpg" },
+  { name: "T-Shirt", price: 799, img: "https://i.pinimg.com/1200x/e4/17/f7/e417f79694faba1073d4b7ccce30a750.jpg" },
+  { name: "Formal Trousers", price: 1999, img: "https://i.pinimg.com/1200x/b9/69/db/b969db03951e806535ff756491b024ea.jpg" },
+  { name: "Vest", price: 899, img: "https://i.pinimg.com/1200x/f9/bc/e2/f9bce2bb9099ea3823e4837144ee8ad5.jpg" }
+];
+
+
+
+
+let cart=[];
+const grid=document.getElementById("productGrid");
+
+function render(list){
+ grid.innerHTML="";
+ list.forEach(p=>{
+  grid.innerHTML+=`<div class="card">
+    <img src="${p.img}">
+    <h4>${p.name}</h4>
+    <p class="price">₹${p.price}</p>
+    <button onclick="add('${p.name}',${p.price})">Add to Cart</button>
+  </div>`;
+ });
+}
+render(products);
+
+function add(n,p){
+ cart.push({n,p});
+ document.getElementById("total").innerText=cart.reduce((s,i)=>s+i.p,0);
+}
+
+function go(id){
+ document.querySelectorAll("section").forEach(s=>s.classList.remove("active"));
+ document.getElementById(id).classList.add("active");
+ if(id==="cart"){
+  document.getElementById("cartItems").innerHTML=
+   cart.map(i=>`<p>${i.n} – ₹${i.p}</p>`).join("");
+ }
+}
+
+function search(v){
+ render(products.filter(p=>p.name.toLowerCase().includes(v.toLowerCase())));
+}
+
+setTimeout(()=>go("offers"),6000);
+</script>
+</body>
+</html>
+
+
+
+
+
+
