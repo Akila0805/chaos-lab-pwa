@@ -28,9 +28,6 @@ Open `index.html` directly in your browser, or serve it locally:
 python -m http.server 3000
 ```
 
-Then visit:  
-👉 http://localhost:3000
-
 ## 🌐 Live Demo
 The app is deployed on **Vercel**:  
 👉 [Chaos Lab PWA](https://chaos-lab-pwa.vercel.app/)
